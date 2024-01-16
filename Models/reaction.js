@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose');
+const { Schema, Types } = require('mongoose');
 
 const reactionSchema = new Schema(
     {
@@ -35,6 +35,6 @@ reactionSchema.virtual('timestamp').get(function () {
     return new Date().toISOString();
 });
 
-const reaction = model('reaction', reactionSchema)
+// const reaction = model('reaction', reactionSchema)
 
-module.exports = reaction;
+module.exports = reactionSchema;

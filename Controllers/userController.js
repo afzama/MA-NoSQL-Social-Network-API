@@ -43,7 +43,7 @@ const thought = async (userName) =>
     //Get a single user
     async getSingleUser(req,res) {
         try {
-            const user = await User.findOne({_id:req.params.userName})
+            const user = await User.findOne({_id:req.params.userId})
                 .select('-__v');
 
             if (!user) {
@@ -62,7 +62,7 @@ const thought = async (userName) =>
     //create a new user
     async createUser(req,res) {
         try {
-            const user = await user.create(req.body);
+            const user = await User.create(req.body);
             res.json(user);
         } catch (err) {
             res.status(500).json(err);
@@ -71,16 +71,16 @@ const thought = async (userName) =>
     //Update a user
     async updateUser(req,res) {
         try {
-            const user = await User.findOneandUpdate(
-                {_id: req.params.userName},
-                {$addToSet: {user: req.body } },
+            const user = await User.findOneAndUpdate(
+                {_id: req.params.userId},
+                {$set: {username: req.body.username } },
                 {runValidators: true, new: true }
             );
 
             if (!user) {
                 return res
                 .status(404)
-                .json({message: 'Not user found with that name :('});
+                .json({message: 'No user found with that name :('});
             }
 
             res.json(user);
@@ -88,18 +88,18 @@ const thought = async (userName) =>
             res.status(500).json(err);
         }
     },
-    //Delete a user and remove their thought
+    //Delete a user and remove 
     async deleteUser(req,res) {
         try {
-            const user = await User.findOneandRemove({_id:req.params.userName});
+            const user = await User.findOneAndDelete({_id:req.params.userId});
 
             if (!user) {
                 return res.status(404).json({message: 'No such user exists'});
             }
 
-            const thought = await Thought.findOneandRemove(
-                { users: req.params.userName},
-                { $pull: {users: req.params.userName} },
+            const thought = await Thought.updateMany(
+                { users: req.params.userId},
+                { $pull: {users: req.params.userId} },
             );
 
             if (!thought) {
@@ -112,31 +112,6 @@ const thought = async (userName) =>
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
-        }
-    },
-    //Create users reactions 
-    async createReaction(req,res) {
-        try {
-            const user = await User.create(req.body);
-            res.json(user);
-        } catch (err) {
-            res.status(500).json(err);
-        }
-    },
-    //Get a users reaction
-    async getReaction(req,res) {
-        try {
-            const reaction = await Reaction.find();
-
-            const reactionObj = {
-                reaction,
-                userName: await userName(),
-            };
-
-            res.json(reactionObj);
-        } catch (err) {
-            console.log(err);
-            return res.status(500).json(err);
         }
     },
   }
