@@ -1,76 +1,98 @@
 const { ObjectId } = require('mongoose').Types;
-const { User, Reaction } = require('../models');
+const { User, Reaction, Thought } = require('../models');
 
 module.exports = {
-    //Create users reactions 
-    async createReaction(req,res) {
-        try {
-            const { userId, thoughtId } = req.params;
-            const { reactionBody, username } = req.body;
+  // Create users reactions
+  async createReaction(req, res) {
+    try {
+      const { userId, thoughtId } = req.params;
+      const { reactionBody, username } = req.body;
+      console.log('userId', userId, 'thoughtId', thoughtId)
+      // const reaction = await Reaction.create({ reactionBody, username });
+      // console.log(reaction);
+      const user = await Thought.findOneAndUpdate(
+        { _id: thoughtId },
+        { $addToSet: { reactions: req.body } },
+        { new: true }
+      );
+      // console.log(user)
+      if (!user) {
+        console.log('User not found');
+        return res.status(404).json({ error: 'User not found' });
+      }
 
-            const reaction = await Reaction.create({reactionBody, username});
+      res.json(user);
+    } catch (err) {
+      console.error('Error creating reaction:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
 
-            const user = await User.findOneAndUpdate(
-                { _id: userId },
-                { $push: { thoughts: thoughtId, reactions: reaction._id } },
-                { new: true }
-              );
-            res.json(user);
-            } catch (err) {
-            res.status(500).json(err);
-            }
-        },
-    //Get a user's reaction
-    async getReaction(req,res) {
-        try {
-            const reaction = await Reaction.find();
+  // Get a user's reaction
+  async getReaction(req, res) {
+    try {
+      const reactions = await Reaction.find();
+      const reactionObj = {
+        reactions,
+        username: await username
+      };
+      console.log('userId', userId, 'thoughtId', thoughtId)
+      res.json(reactionObj);
+    } catch (err) {
+      console.error('Error getting reactions:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
 
-            const reactionObj = {
-                reaction,
-                userName: await userName(),
-            };
+  // Update user reaction
+  async updateReaction(req, res) {
+    try {
+      const { userId, reactionId } = req.params;
+      const { reactionBody } = req.body;
 
-            res.json(reactionObj);
-        } catch (err) {
-            console.log(err);
-            return res.status(500).json(err);
-        }
-    },
-    //Update user reaction
-    async updateReaction(req, res) {
-        try {
-          const { userId, reactionId } = req.params;
-          const { reactionBody } = req.body;
-      
-          const reaction = await Reaction.findOneAndUpdate(
-            { _id: reactionId },
-            { reactionBody },
-            { new: true }
-          );
-      
-          res.json(reaction);
-        } catch (err) {
-          res.status(500).json(err);
-        }
-      },
-    //Delete users reaction
-    async deleteReaction(req, res) {
-        try {
-          const { userId, reactionId } = req.params;
-      
-          // Find the user by their userId and remove the reaction from their reactions array
-          const user = await User.findOneAndUpdate(
-            { _id: userId },
-            { $pull: { reactions: reactionId } },
-            { new: true }
-          );
-      
-          // Delete the reaction from the Reaction collection
-          const reaction = await Reaction.findOneAndDelete({ _id: reactionId });
-      
-          res.json(user);
-        } catch (err) {
-          res.status(500).json(err);
-        }
-      },
-}
+      const reaction = await Reaction.findOneAndUpdate(
+        { _id: reactionId },
+        { reactionBody },
+        { new: true }
+      );
+
+      if (!reaction) {
+        console.log('Reaction not found');
+        return res.status(404).json({ error: 'Reaction not found' });
+      }
+
+      res.json(reaction);
+    } catch (err) {
+      console.error('Error updating reaction:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
+
+  // Delete users reaction
+  async deleteReaction(req, res) {
+    try {
+      const { userId, thoughtId } = req.params;
+      const { reactionBody, username } = req.body;
+      console.log('userId', userId, 'thoughtId', thoughtId)
+      const user = await User.findbyIdAndUpdate(
+        userId,
+        { $pull: { reactions: reactionBody } },
+        { new: true }
+      );
+
+      if (!user) {
+        console.log('User not found');
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      if (!reactionBody) {
+        console.log('Reaction not found');
+        return res.status(404).json({ error: 'Reaction not found' });
+      } console.log('No reaction with that Id')
+      res.json(user);
+    } catch (err) {
+      console.error('Error deleting reaction:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
+};

@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const reactionSchema = require('./reaction')
+const reactionSchema = require('./Reaction')
 
 const thoughtSchema = new Schema(
   {
@@ -22,8 +22,11 @@ const thoughtSchema = new Schema(
       ref: 'User',
       required: true,
     },
-    reactions: [reactionSchema],
-  },
+    reactions: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Reaction',
+    }],
+  }
 );
 
 thoughtSchema.virtual('timestamp').get(function () {

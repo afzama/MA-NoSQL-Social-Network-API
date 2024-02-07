@@ -1,4 +1,4 @@
-const { Schema, Types } = require('mongoose');
+const { Schema, Types, model } = require('mongoose');
 
 const reactionSchema = new Schema(
     {
@@ -10,7 +10,7 @@ const reactionSchema = new Schema(
         reactionBody: {
             type: String,
             required: true,
-            max_length: 280,
+            maxlength: 280,
         },
         username:
         {
@@ -21,20 +21,21 @@ const reactionSchema = new Schema(
         {
             type: Date,
             default: Date.now(),
-            get: (timestamp) => dateFormat(timestamp),
+            // get: (timestamp) => dateFormat(timestamp),
         },
     },
     {
         toJSON: {
             getters: true,
         },
+        id: false
     }
 );
 
-reactionSchema.virtual('timestamp').get(function () {
-    return new Date().toISOString();
-});
+// reactionSchema.virtual('timestamp').get(function () {
+//     return new Date().toISOString();
+// });
 
-// const reaction = model('reaction', reactionSchema)
+const Reaction = model('Reaction', reactionSchema)
 
-module.exports = reactionSchema;
+module.exports = Reaction;

@@ -1,14 +1,17 @@
-const { Schema, model } = require('mongoose');
-const Thought = require('./thought');
+const { Schema, model, Types } = require('mongoose');
 
 // Schema to create User model
 const userSchema = new Schema(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      default: () => new Types.ObjectId(),
+    },
     username: {
       type: String,
       unique: true,
       required: true,
-      max_length: 50,
+      maxlength: 50,
     },
     email: {
       type: String,
@@ -20,11 +23,16 @@ const userSchema = new Schema(
       // },
       match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
     },
-    thought: [
+    thoughts: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Thought',
-        // thoughtSchema
+      }
+    ],
+    reaction: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Reaction',
       }
     ],
     friends: [
@@ -34,28 +42,16 @@ const userSchema = new Schema(
       },
     ],
   },
+  {
+    toJSON: {
+      getters: true,
+    },
+    id: false,
+    strictPopulate: false,
+  }
 );
 
 const User = model('User', userSchema);
-const user = new User();
-
-// user.email = 'test@test.co';
-// user.username = 'test';
-
-// async function validateUser() {
-//   let error;
-//   try {
-//     await user.validate();
-//   } catch (err) {
-//     error = err;
-//   }
-//   assert.ok(error);
-//   assert.equal(error.errors['name'].message, 'Oops!');
-//   assert.equal(error.errors['email'].message, 'Email validation failed')
-// }
-
-// validateUser();
-
 userSchema.virtual('friendCount').get(function () {
   return this.friends.length;
 });

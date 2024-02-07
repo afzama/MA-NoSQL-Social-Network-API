@@ -7,23 +7,16 @@ const {
     deleteThought,
 } = require('../../controllers/thoughtController.js');
 
-//Post a thought
-// router.post('/', (req,res)=>{
 
-// })
-
-// Get all thoughts for a user
-router.route('/user/:userId/thoughts').get(getThoughts);
-
-// Create a new thought for a user
-router.route('/user/:userId/thoughts').post(createThought);
+// Get all thoughts & post for a user
+router.route('/').get(getThoughts).post(createThought);
 
 // Get a single thought for a user
-router.route('/user/:userId/thought/:thoughtId').get(getSingleThought);
+router.route('/:thoughtId').get(getSingleThought);
 
-// Update a single thought for a user
-router.route('/user/:userId/thought/:thoughtId').put(updateThought);
+// Update & Delete a single thought for a user
+router.route('/:thoughtId/update')
+    .post(updateThought)
+    .delete(deleteThought);
 
-// Delete a single thought for a user
-router.route('/user/:userId/thought/:thoughtId').delete(deleteThought);
 module.exports = router;

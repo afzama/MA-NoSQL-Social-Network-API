@@ -12,7 +12,7 @@ router
   .get(getReaction)
   .post(createReaction);
 
-// /api/users/:userId/reactions/:reactionId/update
+// /api/reaction/:userId/reactions/:reactionId/update
 router.route('/:userId/reactions/:reactionId/update').post(updateReaction);
 
 // /api/users/:userId/reactions/:reactionId/delete
